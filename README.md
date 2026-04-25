@@ -8,7 +8,7 @@ Built for ASU's sustainability community, but designed to work anywhere.
 
 ## The Problem
 
-Most people want to recycle correctly. They just don't know how. Contaminated recycling bins cost municipalities millions and often result in entire loads being sent to landfill anyway. Existing apps are either lookup tools (no engagement) or gamified in ways that don't actually verify behavior. TrustBin closes that gap by combining AI-verified disposal with a reputation system that rewards consistent, correct behavior over time.
+Most people want to recycle correctly. They just don't know how. Contaminated recycling bins cost municipalities millions and often result in entire loads being sent to the landfill anyway. Existing apps are either lookup tools (no engagement) or gamified in ways that don't actually verify behavior. TrustBin closes that gap by combining AI-verified disposal with a reputation system that rewards consistent, correct behavior over time.
 
 ---
 
@@ -189,7 +189,7 @@ The test suite uses Vitest with fast-check for property-based testing. PBT prope
 - Inactive users decay toward 0 but never below it
 - Streak resets to 0 on missed non-holiday days
 - Impact score is always 0 for Trash disposals
-- Leaderboard qualification requires minimum weekly correct disposals
+- Leaderboard qualification requires a minimum weekly correct disposals
 
 ---
 
@@ -201,7 +201,7 @@ A decay cron runs at `/api/cron/decay` to apply trust score decay for inactive u
 
 ## Team
 
-Built at [Hackathon Name] by [Your Team Name].
+Built at the Kiro Spark Challenge by Kirobusters.
 
 ---
 
