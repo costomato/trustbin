@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/app/actions/auth';
@@ -51,8 +52,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Top nav */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/dashboard" className="text-lg font-bold text-green-600">
-            🌱 Trustbin
+          <Link href="/dashboard" className="flex items-center gap-2 text-lg font-bold text-green-600">
+            <Image src="/logo.png" alt="Trustbin logo" width={28} height={28} />
+            Trustbin
           </Link>
           <form action={logout}>
             <button type="submit" className="text-sm text-gray-400 hover:text-gray-600">
