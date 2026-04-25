@@ -21,8 +21,12 @@ export function getItemFallbackImage(description: string, materialType: string |
     return 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&h=200&fit=crop';
   }
   
-  // Cups
-  if (desc.includes('cup') || desc.includes('coffee')) {
+  // Cups - use disposable cup image, not coffee mug
+  if (desc.includes('cup') || desc.includes('paper cup')) {
+    return 'https://images.unsplash.com/photo-1530676449-22f3c8d1e8b8?w=200&h=200&fit=crop';
+  }
+  
+  if (desc.includes('coffee')) {
     return 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=200&h=200&fit=crop';
   }
   
@@ -31,9 +35,9 @@ export function getItemFallbackImage(description: string, materialType: string |
     return 'https://images.unsplash.com/photo-1594843310746-7e2b4f6f885e?w=200&h=200&fit=crop';
   }
   
-  // Banana
-  if (desc.includes('banana')) {
-    return 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop';
+  // Banana - use banana peel image
+  if (desc.includes('banana') || desc.includes('peel')) {
+    return 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=200&h=200&fit=crop';
   }
   
   // Apple
