@@ -1,46 +1,31 @@
 'use client';
 
 interface StreakDisplayProps {
-  streakWeeks: number;
-  currentWeekCorrect: number;
-  weeklyMinimum?: number;
+  streakDays: number;
+  todayCorrect: number;
 }
 
-export default function StreakDisplay({
-  streakWeeks,
-  currentWeekCorrect,
-  weeklyMinimum = 3,
-}: StreakDisplayProps) {
-  const progress = Math.min(currentWeekCorrect, weeklyMinimum);
-  const progressPercent = Math.round((progress / weeklyMinimum) * 100);
+export default function StreakDisplay({ streakDays, todayCorrect }: StreakDisplayProps) {
+  const todayDone = todayCorrect >= 1;
 
   return (
     <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-100">
-      {/* Streak count */}
-      <div className="mb-3">
-        {streakWeeks > 0 ? (
+      <div className="mb-2">
+        {streakDays > 0 ? (
           <p className="text-2xl font-bold text-gray-800">
-            🔥 {streakWeeks} week{streakWeeks !== 1 ? 's' : ''} streak
+            🔥 {streakDays} day{streakDays !== 1 ? '' : ''} streak
           </p>
         ) : (
-          <p className="text-base text-gray-500">Start your streak this week!</p>
+          <p className="text-base text-gray-500">Start your streak today!</p>
         )}
       </div>
 
-      {/* Weekly progress */}
-      <div>
-        <div className="flex justify-between text-sm text-gray-600 mb-1">
-          <span>This week</span>
-          <span>
-            {currentWeekCorrect}/{weeklyMinimum} correct
-          </span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-green-500 transition-all duration-300"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+      <div className="flex items-center gap-2">
+        {todayDone ? (
+          <span className="text-sm text-green-600 font-medium">✅ Today&apos;s disposal logged</span>
+        ) : (
+          <span className="text-sm text-gray-400">Log 1 correct disposal to keep your streak</span>
+        )}
       </div>
     </div>
   );

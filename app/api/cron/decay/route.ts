@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { computeDecay } from "@/lib/trust";
-import { evaluateStreak } from "@/lib/streak";
+import { evaluateStreak, isASUHoliday } from "@/lib/streak";
 
 export async function POST(req: NextRequest) {
   // Validate cron secret
@@ -39,27 +39,29 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Streak evaluation + new leaderboard period: runs on Mondays (start of new week)
+  // Daily streak evaluation — runs every day
   let streaksProcessed = 0;
+  const isHoliday = isASUHoliday(now);
+  const { data: allUsers, error: streakError } = await supabase
+    .from("user_profiles")
+    .select("id, streak_weeks, current_week_correct");
+
+  if (!streakError) {
+    for (const user of allUsers ?? []) {
+      // current_week_correct tracks today's correct count (reset daily)
+      const hadCorrectToday = user.current_week_correct > 0;
+      const { newStreak } = evaluateStreak(user.streak_weeks, hadCorrectToday, isHoliday);
+      await supabase
+        .from("user_profiles")
+        .update({ streak_weeks: newStreak, current_week_correct: 0 })
+        .eq("id", user.id);
+      streaksProcessed++;
+    }
+  }
+
+  // Create new leaderboard period on Mondays
   let newPeriodCreated = false;
   if (now.getUTCDay() === 1) {
-    // Evaluate streaks
-    const { data: allUsers, error: streakError } = await supabase
-      .from("user_profiles")
-      .select("id, streak_weeks, current_week_correct");
-
-    if (!streakError) {
-      for (const user of allUsers ?? []) {
-        const { newStreak } = evaluateStreak(user.streak_weeks, user.current_week_correct);
-        await supabase
-          .from("user_profiles")
-          .update({ streak_weeks: newStreak, current_week_correct: 0 })
-          .eq("id", user.id);
-        streaksProcessed++;
-      }
-    }
-
-    // Create new leaderboard period for this week
     const weekStart = new Date(now);
     weekStart.setUTCHours(0, 0, 0, 0);
     const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);

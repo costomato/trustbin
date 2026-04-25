@@ -89,15 +89,16 @@ Trustbin is a gamified recycling and sustainability web app built with Next.js t
 
 ### Requirement 5: Streak System
 
-**User Story:** As a User, I want a streak system based on weekly activity, so that I am not penalized for being away from campus on weekends or holidays.
+**User Story:** As a User, I want a daily streak system that tracks consecutive days of correct disposal, so that I stay motivated like Duolingo but am not penalized on ASU holidays.
 
 #### Acceptance Criteria
 
-1. THE App SHALL define a Weekly_Minimum of 3 correct Disposal_Events per calendar week (Monday through Sunday).
-2. WHEN a User meets the Weekly_Minimum within a calendar week, THE App SHALL increment the User's Streak by one week.
-3. WHEN a User does not meet the Weekly_Minimum within a calendar week, THE App SHALL reset the User's Streak to zero.
-4. THE App SHALL display the User's current Streak count and the number of correct Disposal_Events logged in the current week on the User's profile.
-5. THE Streak system SHALL NOT require Disposal_Events to occur at a specific location to count toward the Weekly_Minimum.
+1. THE App SHALL define a Daily_Minimum of 1 correct Disposal_Event per day to maintain a Streak.
+2. WHEN a User logs at least 1 correct Disposal_Event on a given day, THE App SHALL increment the User's Streak by one day.
+3. WHEN a User does not log any correct Disposal_Event on a given day AND that day is not an ASU holiday, THE App SHALL reset the User's Streak to zero.
+4. THE App SHALL maintain a static list of ASU holiday dates on which Streaks are automatically preserved without requiring a Disposal_Event.
+5. THE App SHALL display the User's current Streak count (in days) and whether today's minimum has been met on the User's profile.
+6. THE Streak system SHALL NOT require Disposal_Events to occur at a specific location to count toward the Daily_Minimum.
 
 ---
 

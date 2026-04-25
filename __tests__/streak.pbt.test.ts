@@ -1,44 +1,43 @@
+/**
+ * Property-based tests for daily streak logic
+ * Feature: trustbin, Property 6: Streak increments only when daily minimum is met
+ * Validates: Requirements 5.2, 5.3, 5.4
+ */
 import { describe, it } from 'vitest';
 import * as fc from 'fast-check';
-import { evaluateStreak, WEEKLY_MINIMUM } from '../lib/streak';
+import { evaluateStreak } from '../lib/streak';
 
-// ── Arbitraries ───────────────────────────────────────────────────────────────
+const streakArb = fc.integer({ min: 0, max: 365 });
 
-const streakArb = fc.integer({ min: 0, max: 52 });
-const weeklyCorrectArb = fc.integer({ min: 0, max: 100 });
-
-// ── Task 6.5: Property 6 ──────────────────────────────────────────────────────
-
-/**
- * Validates: Requirements 5.2, 5.3
- */
 describe(
-  'Feature: trustbin, Property 6: Streak increments only when weekly minimum is met',
+  'Feature: trustbin, Property 6: Streak increments only when daily minimum is met',
   () => {
-    it('streak increments by 1 when weeklyCorrect >= WEEKLY_MINIMUM', () => {
+    it('streak increments by 1 when user had a correct disposal today', () => {
       fc.assert(
-        fc.property(
-          streakArb,
-          fc.integer({ min: WEEKLY_MINIMUM, max: 100 }),
-          (currentStreak, weeklyCorrect) => {
-            const { newStreak, maintained } = evaluateStreak(currentStreak, weeklyCorrect);
-            return newStreak === currentStreak + 1 && maintained === true;
-          }
-        ),
+        fc.property(streakArb, fc.boolean(), (currentStreak, isHoliday) => {
+          const { newStreak, maintained } = evaluateStreak(currentStreak, true, isHoliday);
+          return newStreak === currentStreak + 1 && maintained === true;
+        }),
         { numRuns: 100 }
       );
     });
 
-    it('streak resets to 0 when weeklyCorrect < WEEKLY_MINIMUM', () => {
+    it('streak resets to 0 when no disposal and not a holiday', () => {
       fc.assert(
-        fc.property(
-          streakArb,
-          fc.integer({ min: 0, max: WEEKLY_MINIMUM - 1 }),
-          (currentStreak, weeklyCorrect) => {
-            const { newStreak, maintained } = evaluateStreak(currentStreak, weeklyCorrect);
-            return newStreak === 0 && maintained === false;
-          }
-        ),
+        fc.property(streakArb, (currentStreak) => {
+          const { newStreak, maintained } = evaluateStreak(currentStreak, false, false);
+          return newStreak === 0 && maintained === false;
+        }),
+        { numRuns: 100 }
+      );
+    });
+
+    it('streak is preserved (unchanged) on holidays without disposal', () => {
+      fc.assert(
+        fc.property(streakArb, (currentStreak) => {
+          const { newStreak, maintained } = evaluateStreak(currentStreak, false, true);
+          return newStreak === currentStreak && maintained === true;
+        }),
         { numRuns: 100 }
       );
     });
