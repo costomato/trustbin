@@ -143,7 +143,7 @@ export default async function DashboardPage() {
       <ImpactCard impactScore={impactScore} />
 
       {/* Streak Display */}
-      <StreakDisplay streakWeeks={streakWeeks} />
+      <StreakDisplay streakDays={streakWeeks * 7} todayCorrect={weeklyCorrect} />
     </main>
   );
 }
