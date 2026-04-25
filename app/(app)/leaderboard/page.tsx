@@ -37,12 +37,15 @@ export default async function LeaderboardPage() {
     .eq('qualified', true)
     .order('score', { ascending: false });
 
-  const ranked = (entries ?? []).map((e, i) => ({
-    rank: i + 1,
-    display_name: (e.user_profiles as { display_name: string | null; email: string } | null)?.display_name ?? null,
-    email: (e.user_profiles as { display_name: string | null; email: string } | null)?.email ?? '',
-    score: e.score,
-  }));
+  const ranked = (entries ?? []).map((e, i) => {
+    const profile = e.user_profiles as unknown as { display_name: string | null; email: string } | null;
+    return {
+      rank: i + 1,
+      display_name: profile?.display_name ?? null,
+      email: profile?.email ?? '',
+      score: e.score,
+    };
+  });
 
   return (
     <main className="flex flex-col gap-6 p-4 max-w-md mx-auto pb-20">
