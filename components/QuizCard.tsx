@@ -33,32 +33,38 @@ export default function QuizCard({ question, onAnswer, onNext }: QuizCardProps) 
   }
 
   function getButtonStyle(choice: string) {
-    if (!selected) return 'border border-gray-300 text-gray-800 hover:bg-gray-50';
-    if (choice === question.correct_answer) return 'bg-green-100 border border-green-500 text-green-800 font-semibold';
-    if (choice === selected) return 'bg-red-100 border border-red-400 text-red-700';
-    return 'border border-gray-200 text-gray-400';
+    if (!selected) return 'bg-white border-2 border-gray-200 text-gray-800 hover:border-purple-300 hover:bg-purple-50';
+    if (choice === question.correct_answer) return 'bg-green-100 border-2 border-green-500 text-green-800 font-semibold';
+    if (choice === selected) return 'bg-red-100 border-2 border-red-400 text-red-700 font-semibold';
+    return 'bg-gray-50 border-2 border-gray-200 text-gray-400';
   }
 
+  const isCorrect = selected === question.correct_answer;
+
   return (
-    <div className="flex flex-col gap-4 w-full rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
+    <div className="flex flex-col gap-5 w-full rounded-3xl bg-gradient-to-br from-purple-50 to-pink-50 p-6 shadow-lg border-2 border-purple-100">
       {question.image_url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={question.image_url}
-          alt="Item to classify"
-          className="w-full max-h-48 object-cover rounded-xl"
-        />
+        <div className="rounded-2xl overflow-hidden shadow-md">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={question.image_url}
+            alt="Item to classify"
+            className="w-full h-48 object-cover"
+          />
+        </div>
       )}
 
-      <p className="text-base font-medium text-gray-800">{question.question_text}</p>
+      <div className="bg-white rounded-2xl p-4 shadow-sm">
+        <p className="text-base font-semibold text-gray-800">{question.question_text}</p>
+      </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         {question.choices.map((choice) => (
           <button
             key={choice}
             onClick={() => handleSelect(choice)}
             disabled={!!selected}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-colors disabled:cursor-default ${getButtonStyle(choice)}`}
+            className={`w-full text-left px-5 py-4 rounded-xl text-sm font-medium transition-all disabled:cursor-default transform hover:scale-[1.02] active:scale-[0.98] ${getButtonStyle(choice)}`}
           >
             {displayLabel(choice)}
           </button>
@@ -67,15 +73,20 @@ export default function QuizCard({ question, onAnswer, onNext }: QuizCardProps) 
 
       {selected && (
         <>
-          <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-600">
-            <span className="font-semibold text-gray-700">Explanation: </span>
-            {question.explanation}
+          <div className={`rounded-2xl px-5 py-4 text-sm ${isCorrect ? 'bg-green-100 border-2 border-green-300 text-green-800' : 'bg-orange-100 border-2 border-orange-300 text-orange-800'}`}>
+            <div className="flex items-start gap-2">
+              <span className="text-xl">{isCorrect ? '✓' : 'ℹ️'}</span>
+              <div>
+                <p className="font-semibold mb-1">{isCorrect ? 'Correct!' : 'Not quite!'}</p>
+                <p className="text-sm">{question.explanation}</p>
+              </div>
+            </div>
           </div>
           <button
             onClick={onNext}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-colors"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            Next →
+            Next Question →
           </button>
         </>
       )}

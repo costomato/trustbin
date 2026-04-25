@@ -19,9 +19,12 @@ export default async function LeaderboardPage() {
 
   if (!period) {
     return (
-      <main className="p-4 max-w-md mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Leaderboard</h1>
-        <p className="text-gray-400 text-sm text-center">No leaderboard period active yet.</p>
+      <main className="p-4 max-w-md mx-auto pb-20">
+        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-8 text-center border-2 border-yellow-200">
+          <div className="text-6xl mb-4">🏆</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Leaderboard</h1>
+          <p className="text-gray-600">No leaderboard period active yet.</p>
+        </div>
       </main>
     );
   }
@@ -42,8 +45,16 @@ export default async function LeaderboardPage() {
   }));
 
   return (
-    <main className="flex flex-col gap-4 p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold">Leaderboard</h1>
+    <main className="flex flex-col gap-6 p-4 max-w-md mx-auto pb-20">
+      {/* Header */}
+      <div className="text-center">
+        <div className="text-5xl mb-3">🏆</div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+          Leaderboard
+        </h1>
+        <p className="text-sm text-gray-600 mt-1">Top recyclers this period</p>
+      </div>
+
       <Leaderboard entries={ranked} periodLabel={period.period_label} currentUserId={user.id} />
     </main>
   );
