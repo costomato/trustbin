@@ -42,17 +42,49 @@ export async function POST(req: NextRequest) {
 
   // Increment leaderboard score by 5 if correct (Req 6.3)
   if (isCorrect) {
+    // Update user_profiles.leaderboard_score
     const { data: profile } = await admin
       .from('user_profiles')
-      .select('leaderboard_score')
+      .select('leaderboard_score, flag_active')
       .eq('id', user.id)
       .single();
 
-    if (profile) {
+    if (profile && !profile.flag_active) {
       await admin
         .from('user_profiles')
         .update({ leaderboard_score: profile.leaderboard_score + 5 })
         .eq('id', user.id);
+
+      // Also update leaderboard_entries.score for the current period
+      const { data: period } = await admin
+        .from('leaderboard_periods')
+        .select('id')
+        .order('starts_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (period) {
+        // Get current entry
+        const { data: entry } = await admin
+          .from('leaderboard_entries')
+          .select('score')
+          .eq('period_id', period.id)
+          .eq('user_id', user.id)
+          .single();
+
+        if (entry) {
+          await admin
+            .from('leaderboard_entries')
+            .update({ score: entry.score + 5 })
+            .eq('period_id', period.id)
+            .eq('user_id', user.id);
+        } else {
+          // Create entry if it doesn't exist yet
+          await admin
+            .from('leaderboard_entries')
+            .insert({ period_id: period.id, user_id: user.id, score: 5, qualified: true });
+        }
+      }
     }
   }
 

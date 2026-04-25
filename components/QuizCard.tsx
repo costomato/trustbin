@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface QuizCardQuestion {
   id: string;
@@ -14,10 +14,16 @@ interface QuizCardQuestion {
 interface QuizCardProps {
   question: QuizCardQuestion;
   onAnswer: (answer: string, isCorrect: boolean) => void;
+  onNext: () => void;
 }
 
-export default function QuizCard({ question, onAnswer }: QuizCardProps) {
+export default function QuizCard({ question, onAnswer, onNext }: QuizCardProps) {
   const [selected, setSelected] = useState<string | null>(null);
+
+  // Reset selection when question changes
+  useEffect(() => {
+    setSelected(null);
+  }, [question.id]);
 
   function handleSelect(choice: string) {
     if (selected) return;
@@ -59,10 +65,18 @@ export default function QuizCard({ question, onAnswer }: QuizCardProps) {
       </div>
 
       {selected && (
-        <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-600">
-          <span className="font-semibold text-gray-700">Explanation: </span>
-          {question.explanation}
-        </div>
+        <>
+          <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-600">
+            <span className="font-semibold text-gray-700">Explanation: </span>
+            {question.explanation}
+          </div>
+          <button
+            onClick={onNext}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-colors"
+          >
+            Next →
+          </button>
+        </>
       )}
     </div>
   );

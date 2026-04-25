@@ -24,7 +24,6 @@ export default function QuizPageClient({ questions }: QuizPageClientProps) {
   async function handleAnswer(answer: string, isCorrect: boolean) {
     const question = questions[index];
 
-    // Submit to API
     await fetch('/api/quiz/answer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -32,15 +31,14 @@ export default function QuizPageClient({ questions }: QuizPageClientProps) {
     });
 
     if (isCorrect) setScore((s) => s + 1);
+  }
 
-    // Advance after a short delay so user can read the explanation
-    setTimeout(() => {
-      if (index + 1 >= questions.length) {
-        setDone(true);
-      } else {
-        setIndex((i) => i + 1);
-      }
-    }, 1800);
+  function handleNext() {
+    if (index + 1 >= questions.length) {
+      setDone(true);
+    } else {
+      setIndex((i) => i + 1);
+    }
   }
 
   if (done) {
@@ -60,7 +58,11 @@ export default function QuizPageClient({ questions }: QuizPageClientProps) {
       <p className="text-sm text-gray-400 text-right">
         {index + 1} / {questions.length}
       </p>
-      <QuizCard question={questions[index]} onAnswer={handleAnswer} />
+      <QuizCard
+        question={questions[index]}
+        onAnswer={handleAnswer}
+        onNext={handleNext}
+      />
     </div>
   );
 }

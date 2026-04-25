@@ -39,9 +39,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Streak evaluation: runs on Mondays (start of new week)
+  // Streak evaluation + new leaderboard period: runs on Mondays (start of new week)
   let streaksProcessed = 0;
+  let newPeriodCreated = false;
   if (now.getUTCDay() === 1) {
+    // Evaluate streaks
     const { data: allUsers, error: streakError } = await supabase
       .from("user_profiles")
       .select("id, streak_weeks, current_week_correct");
@@ -56,7 +58,19 @@ export async function POST(req: NextRequest) {
         streaksProcessed++;
       }
     }
+
+    // Create new leaderboard period for this week
+    const weekStart = new Date(now);
+    weekStart.setUTCHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const label = `Week of ${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+    const { error: periodError } = await supabase
+      .from("leaderboard_periods")
+      .insert({ period_label: label, starts_at: weekStart.toISOString(), ends_at: weekEnd.toISOString() });
+
+    newPeriodCreated = !periodError;
   }
 
-  return NextResponse.json({ processed, streaksProcessed });
+  return NextResponse.json({ processed, streaksProcessed, newPeriodCreated });
 }

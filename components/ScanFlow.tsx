@@ -93,6 +93,13 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
     if (res.ok) {
       const data: DisposalResponse = await res.json();
       setDisposalResult(data);
+
+      // Generate a quiz question from this disposal event (fire and forget)
+      fetch('/api/quiz/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disposalEventId: data.disposalEventId }),
+      }).catch(() => {}); // non-critical, don't block the flow
     }
     setState('feedback');
   }
