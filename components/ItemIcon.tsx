@@ -26,6 +26,8 @@ export default function ItemIcon({ item }: ItemIconProps) {
   const emoji = item.ai_classification === 'Recycling' ? '♻️'
     : item.ai_classification === 'Compost' ? '🌱' : '🗑️';
 
+  const classificationLabel = item.ai_classification === 'Trash' ? 'Landfill' : item.ai_classification;
+
   return (
     <>
       <button
@@ -47,7 +49,7 @@ export default function ItemIcon({ item }: ItemIconProps) {
           >
             <p className="text-lg font-bold text-gray-800 mb-1">{item.item_description}</p>
             <p className="text-sm text-gray-500 mb-3">
-              {item.ai_classification} · {item.material_type ?? 'unknown material'} ·{' '}
+              {classificationLabel} · {item.material_type ?? 'unknown material'} ·{' '}
               {new Date(item.created_at).toLocaleDateString()}
             </p>
             <p className="text-sm text-gray-600 bg-green-50 rounded-xl p-3">

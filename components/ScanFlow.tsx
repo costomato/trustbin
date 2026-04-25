@@ -5,9 +5,10 @@ import CameraCapture from '@/components/CameraCapture';
 import ClassificationResult from '@/components/ClassificationResult';
 import BinSelector from '@/components/BinSelector';
 import DisposalFeedback from '@/components/DisposalFeedback';
+import { displayLabel } from '@/lib/display-labels';
 
 type BinType = 'Trash' | 'Recycling' | 'Compost';
-type ScanState = 'camera' | 'classifying' | 'result' | 'bin_select' | 'feedback';
+type ScanState = 'choose_mode' | 'camera' | 'classifying' | 'result' | 'bin_select' | 'feedback';
 
 interface ClassifyResponse {
   classification: BinType;
@@ -31,9 +32,10 @@ const TRUST_THRESHOLD = 100;
 
 export default function ScanFlow({ trustScore }: ScanFlowProps) {
   const tapToLog = trustScore >= TRUST_THRESHOLD;
-  const initialState: ScanState = tapToLog ? 'bin_select' : 'camera';
+  const initialState: ScanState = tapToLog ? 'choose_mode' : 'camera';
 
   const [state, setState] = useState<ScanState>(initialState);
+  const [useTapMode, setUseTapMode] = useState(false);
   const [itemDescription, setItemDescription] = useState('');
   const [classifyResult, setClassifyResult] = useState<ClassifyResponse | null>(null);
   const [disposalResult, setDisposalResult] = useState<DisposalResponse | null>(null);
@@ -41,6 +43,7 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
 
   function reset() {
     setState(initialState);
+    setUseTapMode(false);
     setItemDescription('');
     setClassifyResult(null);
     setDisposalResult(null);
@@ -104,8 +107,36 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
     setState('feedback');
   }
 
+  // ── Mode selection (trust >= 100) ──────────────────────────────────────
+  if (tapToLog && state === 'choose_mode') {
+    return (
+      <div className="flex flex-col gap-4 w-full">
+        <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-green-700 text-sm font-medium text-center">
+          ✓ Tap-to-log unlocked!
+        </div>
+        <p className="text-center text-sm text-gray-500">How do you want to log this item?</p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => { setUseTapMode(true); setState('bin_select'); }}
+            className="flex-1 flex flex-col items-center gap-2 py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors"
+          >
+            <span className="text-2xl">⚡</span>
+            <span>Tap to Log</span>
+          </button>
+          <button
+            onClick={() => { setUseTapMode(false); setState('camera'); }}
+            className="flex-1 flex flex-col items-center gap-2 py-5 rounded-2xl bg-gray-700 hover:bg-gray-800 text-white font-semibold transition-colors"
+          >
+            <span className="text-2xl">📷</span>
+            <span>Use Camera</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ── Tap-to-log mode ──────────────────────────────────────────────────────
-  if (tapToLog) {
+  if (tapToLog && useTapMode) {
     if (state === 'bin_select') {
       return (
         <div className="flex flex-col gap-6 w-full">
@@ -199,7 +230,7 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
     return (
       <div className="flex flex-col gap-4 w-full">
         <div className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-600 text-center">
-          AI says: <span className="font-semibold">{classifyResult.classification}</span>
+          AI says: <span className="font-semibold">{displayLabel(classifyResult.classification)}</span>
         </div>
         <BinSelector onSelect={handleBinSelect} />
       </div>

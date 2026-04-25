@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { displayLabel } from '@/lib/display-labels';
 
 type Classification = 'Trash' | 'Recycling' | 'Compost';
 
@@ -21,10 +22,10 @@ const BADGE_STYLES: Record<Classification, string> = {
   Trash: 'bg-gray-100 text-gray-700 border border-gray-300',
 };
 
-const MANUAL_BUTTONS: { label: Classification; style: string }[] = [
-  { label: 'Trash', style: 'border border-gray-300 text-gray-700 hover:bg-gray-100' },
-  { label: 'Recycling', style: 'border border-blue-300 text-blue-700 hover:bg-blue-50' },
-  { label: 'Compost', style: 'border border-green-300 text-green-700 hover:bg-green-50' },
+const MANUAL_BUTTONS: { label: Classification; displayText: string; style: string }[] = [
+  { label: 'Trash', displayText: 'Landfill', style: 'border border-gray-300 text-gray-700 hover:bg-gray-100' },
+  { label: 'Recycling', displayText: 'Recycling', style: 'border border-blue-300 text-blue-700 hover:bg-blue-50' },
+  { label: 'Compost', displayText: 'Compost', style: 'border border-green-300 text-green-700 hover:bg-green-50' },
 ];
 
 export default function ClassificationResult({
@@ -53,7 +54,7 @@ export default function ClassificationResult({
       {/* Classification badge */}
       <div className="flex flex-col items-center gap-2 py-4">
         <span className={`text-2xl font-bold px-5 py-2 rounded-full ${BADGE_STYLES[classification]}`}>
-          {classification}
+          {displayLabel(classification)}
         </span>
         {materialType && (
           <span className="text-sm text-gray-500">{materialType}</span>
@@ -76,13 +77,13 @@ export default function ClassificationResult({
             Retake
           </button>
           <div className="flex gap-2">
-            {MANUAL_BUTTONS.map(({ label, style }) => (
+            {MANUAL_BUTTONS.map(({ label, displayText, style }) => (
               <button
                 key={label}
                 onClick={() => onManualSelect(label)}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${style}`}
               >
-                {label}
+                {displayText}
               </button>
             ))}
           </div>

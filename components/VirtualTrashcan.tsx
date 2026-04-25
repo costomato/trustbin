@@ -10,7 +10,7 @@ interface VirtualTrashcanProps {
 }
 
 const BIN_CONFIG: { type: Classification; label: string; emoji: string; color: string; fill: string }[] = [
-  { type: 'Trash',     label: 'Trash',     emoji: '🗑️', color: 'border-gray-300 bg-gray-50',   fill: 'bg-gray-400' },
+  { type: 'Trash',     label: 'Landfill',  emoji: '🗑️', color: 'border-gray-300 bg-gray-50',   fill: 'bg-gray-400' },
   { type: 'Recycling', label: 'Recycling', emoji: '♻️', color: 'border-blue-300 bg-blue-50',   fill: 'bg-blue-400' },
   { type: 'Compost',   label: 'Compost',   emoji: '🌱', color: 'border-green-300 bg-green-50', fill: 'bg-green-400' },
 ];

@@ -6,7 +6,7 @@ interface BinSelectorProps {
 }
 
 const BINS = [
-  { type: 'Trash' as const, emoji: '🗑️', label: 'Trash', color: 'bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300' },
+  { type: 'Trash' as const, emoji: '🗑️', label: 'Landfill', color: 'bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300' },
   { type: 'Recycling' as const, emoji: '♻️', label: 'Recycling', color: 'bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300' },
   { type: 'Compost' as const, emoji: '🌱', label: 'Compost', color: 'bg-green-500 hover:bg-green-600 disabled:bg-green-300' },
 ];

@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import ScanFlow from '@/components/ScanFlow';
+
+export const dynamic = 'force-dynamic';
 
 export default async function ScanPage() {
   const supabase = await createClient();
@@ -11,7 +14,8 @@ export default async function ScanPage() {
   let trustScore = 0;
 
   if (user) {
-    const { data: profile } = await supabase
+    const admin = createAdminClient();
+    const { data: profile } = await admin
       .from('user_profiles')
       .select('trust_score')
       .eq('id', user.id)

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { displayLabel } from '@/lib/display-labels';
 
 interface QuizCardQuestion {
   id: string;
@@ -59,7 +60,7 @@ export default function QuizCard({ question, onAnswer, onNext }: QuizCardProps) 
             disabled={!!selected}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-colors disabled:cursor-default ${getButtonStyle(choice)}`}
           >
-            {choice}
+            {displayLabel(choice)}
           </button>
         ))}
       </div>
