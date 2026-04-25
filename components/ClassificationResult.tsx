@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { formatItemName } from '@/lib/format';
 
 type Classification = 'Trash' | 'Recycling' | 'Compost';
 
@@ -48,6 +49,9 @@ export default function ClassificationResult({
     setFlagReason('');
   }
 
+  // Format material type for display
+  const formattedMaterialType = formatItemName(materialType);
+
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Classification badge */}
@@ -56,7 +60,7 @@ export default function ClassificationResult({
           {classification}
         </span>
         {materialType && (
-          <span className="text-sm text-gray-500">{materialType}</span>
+          <span className="text-sm text-gray-500">{formattedMaterialType}</span>
         )}
       </div>
 

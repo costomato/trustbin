@@ -38,6 +38,7 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
   const [classifyResult, setClassifyResult] = useState<ClassifyResponse | null>(null);
   const [disposalResult, setDisposalResult] = useState<DisposalResponse | null>(null);
   const [classifyError, setClassifyError] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   function reset() {
     setState(initialState);
@@ -45,11 +46,13 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
     setClassifyResult(null);
     setDisposalResult(null);
     setClassifyError(null);
+    setCapturedImage(null);
   }
 
   async function handleCapture(base64: string) {
     setState('classifying');
     setClassifyError(null);
+    setCapturedImage(base64); // Store the captured image
     try {
       const res = await fetch('/api/classify', {
         method: 'POST',
@@ -87,6 +90,7 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
         selectedBin: bin,
         itemDescription: itemDescription || classifyResult?.material_type || 'Unknown item',
         materialType: classifyResult?.material_type,
+        imageData: capturedImage, // Pass the captured image
       }),
     });
 

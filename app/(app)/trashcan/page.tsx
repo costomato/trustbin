@@ -13,8 +13,9 @@ export default async function TrashcanPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <main className="flex flex-col gap-4 p-4 max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold">My Trashcan</h1>
+    <main className="flex flex-col gap-4 p-4 max-w-lg mx-auto pb-20">
+      <h1 className="text-2xl font-bold">Virtual Trashcan</h1>
+      <p className="text-sm text-gray-600">View all your scanned items organized by disposal type</p>
       <VirtualTrashcanClient initialItems={items ?? []} userId={user.id} />
     </main>
   );
