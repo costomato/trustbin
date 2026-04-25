@@ -2,20 +2,17 @@
 
 ## Introduction
 
-Trustbin is a gamified recycling and sustainability web app built with Next.js that turns responsible waste disposal into an educational, competitive experience. Users scan items to classify them as trash, recycling, or compost; log disposal events at physical bins; and compete on a knowledge-based leaderboard scoped to the ASU (Arizona State University) community. The app builds a trust system that reduces friction for consistent users while maintaining integrity through decay and abuse detection. Smart bins are simulated as a demo dataset managed by an admin, serving as a proof-of-concept for software-layer intelligence added to existing waste infrastructure.
+Trustbin is a gamified recycling and sustainability web app built with Next.js that turns responsible waste disposal into an educational, competitive experience. Users scan items to classify them as trash, recycling, or compost; log disposal events by selecting the bin type they used; and compete on a knowledge-based leaderboard scoped to the ASU (Arizona State University) community. The app builds a trust system that reduces friction for consistent users while maintaining integrity through decay and abuse detection.
 
 ## Glossary
 
 - **App**: The Trustbin Next.js web application
 - **User**: A registered ASU community member using the App
-- **Admin**: An authorized operator who manages Smart_Bin registrations and reviews flagged accounts
+- **Admin**: An authorized operator who reviews Flag submissions and accounts with active Flags
 - **Item**: A physical object scanned or logged by the User for classification
 - **Classification**: The AI-determined category of an Item — one of: Trash, Recycling, or Compost
-- **Disposal_Event**: A logged record of a User disposing of an Item at a Bin
-- **Bin**: A physical waste receptacle, either a Smart_Bin or a Standard_Bin
-- **Smart_Bin**: A simulated Bin registered in the App's database by an Admin, associated with a QR code and a known ASU campus location
-- **Standard_Bin**: A Bin not registered in the App's database, used in manual logging mode
-- **QR_Scanner**: The in-app component that reads QR codes from Bins
+- **Disposal_Event**: A logged record of a User disposing of an Item into a selected Bin type
+- **Bin_Type**: One of three waste categories a User can select when logging a disposal: Trash, Recycling, or Compost
 - **AI_Classifier**: The component that analyzes camera images and returns a Classification for an Item
 - **Trust_Score**: A numeric value representing a User's history of correct and consistent disposal behavior
 - **Trust_Threshold**: The minimum Trust_Score of 100 points required to unlock tap-to-log mode, representing a knowledgeable and consistent user
@@ -62,16 +59,14 @@ Trustbin is a gamified recycling and sustainability web app built with Next.js t
 
 ### Requirement 3: Disposal Event Logging
 
-**User Story:** As a User, I want to log a disposal event at a bin, so that my recycling activity is recorded and contributes to my progress.
+**User Story:** As a User, I want to log a disposal event by selecting the bin I used, so that my recycling activity is recorded and I receive feedback on whether I disposed correctly.
 
 #### Acceptance Criteria
 
-1. WHEN a User scans a QR code on a Smart_Bin, THE App SHALL identify the Bin, cross-reference the Item's Classification with the Bin type, and record a Disposal_Event.
-2. WHEN a Disposal_Event is recorded, THE App SHALL provide real-time feedback indicating whether the Item was disposed of in the correct Bin type.
-3. WHERE a Smart_Bin location is registered, THE App SHALL display the nearest relevant sustainability resource (such as a water fountain or e-waste drop-off point) associated with that ASU campus location.
-4. WHEN a User is not near a registered Smart_Bin, THE App SHALL offer manual logging mode using a Standard_Bin, requiring the User to select the Bin type manually.
-5. THE App SHALL determine whether a User is near a Smart_Bin using device location data and the registered Smart_Bin location database.
-6. WHEN a Disposal_Event is logged in manual logging mode, THE App SHALL require the User to confirm the Bin type before recording the event.
+1. WHEN the AI_Classifier returns a Classification for an Item, THE App SHALL prompt the User to select the Bin_Type they are disposing into (Trash, Recycling, or Compost).
+2. WHEN a User selects a Bin_Type, THE App SHALL cross-reference the Item's Classification with the selected Bin_Type and record a Disposal_Event.
+3. WHEN a Disposal_Event is recorded, THE App SHALL provide real-time feedback indicating whether the Item was disposed of in the correct Bin_Type.
+4. THE App SHALL maintain a static dataset of ASU campus sustainability resources, including water fountain and e-waste drop-off locations, referenced by ASU campus building or zone. WHEN a User scans an Item and their location is known, THE App SHALL display the nearest relevant resource from this static dataset.
 
 ---
 
@@ -87,7 +82,7 @@ Trustbin is a gamified recycling and sustainability web app built with Next.js t
 4. WHEN a User's Trust_Score reaches or exceeds the Trust_Threshold of 100 points, THE App SHALL unlock tap-to-log mode, removing the photo verification requirement for future Disposal_Events.
 5. WHILE a User's Trust_Score is below the Trust_Threshold, THE App SHALL require photo verification for every Disposal_Event.
 6. WHEN a User's account has no Disposal_Events recorded for 14 or more consecutive days, THE App SHALL apply a Trust_Score decay of 5 points per day of inactivity beyond that 14-day period, to a minimum Trust_Score of 0.
-7. WHEN the App detects a disposal pattern consistent with abuse — defined as more than 20 identical Item classifications logged within a 24-hour period — THE App SHALL flag the account for Admin review and suspend Trust_Score increments until the review is resolved.
+7. WHEN the App detects a disposal pattern consistent with abuse — defined as more than 20 identical Item classifications logged within a 24-hour period — THE App SHALL submit a Flag on the account for Admin review and suspend Trust_Score increments until the review is resolved.
 8. IF a User submits a Flag on a Classification, THEN THE App SHALL pause Trust_Score penalization for that specific Disposal_Event until the Flag is reviewed by an Admin.
 
 ---
@@ -119,19 +114,23 @@ Trustbin is a gamified recycling and sustainability web app built with Next.js t
 5. WHEN a User does not meet the Weekly_Minimum for a leaderboard period, THE App SHALL exclude that User from the Leaderboard ranking for that period.
 6. THE App SHALL display the Leaderboard with User rankings, scores, and the current leaderboard period to all authenticated Users.
 7. THE App SHALL generate Quiz questions using the classification category, material type, and disposal method associated with the User's logged Items.
+8. THE App SHALL generate Quiz questions by prompting an LLM with the Classification, material type, and item description of a logged Item. Each generated Quiz question SHALL include: a question string, four answer choices, the correct answer, and a brief explanation of why the answer is correct. THE App SHALL use the Anthropic API with the claude-sonnet-4-20250514 model for all Quiz question generation.
 
 ---
 
 ### Requirement 7: Virtual Trashcan
 
-**User Story:** As a User, I want a visual record of everything I've logged, so that I can see my disposal history broken down by category.
+**User Story:** As a User, I want an animated, interactive visual record of everything I've logged, so that I can explore my disposal history in a playful and tactile way rather than reading a data table.
 
 #### Acceptance Criteria
 
 1. THE App SHALL maintain a Virtual_Trashcan for each User containing all logged Disposal_Events.
-2. THE Virtual_Trashcan SHALL display logged Items grouped by Classification (Trash, Recycling, Compost).
-3. WHEN a User views the Virtual_Trashcan, THE App SHALL display the total count of Items logged per Classification category.
-4. THE Virtual_Trashcan SHALL persist across sessions and update in real time when a new Disposal_Event is recorded.
+2. THE Virtual_Trashcan SHALL render as three separate animated bin graphics — one per Classification (Trash, Recycling, Compost) — rather than a flat list or table.
+3. WHEN a User views the Virtual_Trashcan, THE App SHALL display each logged Item as a visual icon positioned inside or around its corresponding animated bin graphic, grouped by Classification.
+4. WHEN a new Disposal_Event is recorded, THE Virtual_Trashcan SHALL animate the corresponding Item icon dropping or falling into the appropriate bin graphic.
+5. WHEN a User taps or clicks an Item icon within the Virtual_Trashcan, THE App SHALL display a detail view for that Item showing its Classification, date logged, material type, and an associated educational tip.
+6. THE Virtual_Trashcan SHALL visually reflect the fill level of each bin graphic based on the number of Items logged in that Classification category, such that a bin with more Items appears fuller than a bin with fewer Items.
+7. THE Virtual_Trashcan SHALL persist across sessions and update in real time when a new Disposal_Event is recorded.
 
 ---
 
@@ -161,21 +160,7 @@ Trustbin is a gamified recycling and sustainability web app built with Next.js t
 
 ---
 
-### Requirement 10: Admin — Smart Bin Management
-
-**User Story:** As an Admin, I want to register and manage simulated Smart Bins in the system, so that the app has a demo dataset of campus bin locations without requiring physical hardware.
-
-#### Acceptance Criteria
-
-1. THE App SHALL provide an Admin interface for creating, updating, and deactivating Smart_Bin records.
-2. WHEN an Admin creates a Smart_Bin record, THE App SHALL require a bin name, ASU campus location, bin type (Trash, Recycling, or Compost), and an associated QR code identifier.
-3. WHEN an Admin deactivates a Smart_Bin, THE App SHALL prevent new Disposal_Events from being logged against that Bin.
-4. THE App SHALL display all registered Smart_Bins and their status in the Admin interface.
-5. WHEN an Admin reviews a flagged account, THE App SHALL allow the Admin to clear the flag and resume Trust_Score increments, or permanently suspend the account.
-
----
-
-### Requirement 11: Anti-Abuse Safeguards
+### Requirement 10: Anti-Abuse Safeguards
 
 **User Story:** As a system operator, I want the scoring system to reward correct disposal decisions and knowledge rather than raw volume, so that the leaderboard reflects genuine engagement.
 
@@ -184,5 +169,5 @@ Trustbin is a gamified recycling and sustainability web app built with Next.js t
 1. THE App SHALL NOT increment a User's leaderboard score for Disposal_Events that exceed the abuse detection threshold defined in Requirement 4.7.
 2. THE Leaderboard SHALL require Users to meet the Weekly_Minimum to qualify, as defined in Requirement 6.4.
 3. THE App SHALL apply Trust_Score decay for inactivity as defined in Requirement 4.6, preventing long-term abuse by previously trusted accounts.
-4. THE App SHALL NOT award Impact_Score credit for Items classified as Trash when disposed of in a Trash Bin, as trash generation is not a positive environmental action.
-5. WHEN a User's account is flagged for abuse review, THE App SHALL notify the User that their account is under review and suspend leaderboard score increments until the Admin resolves the review.
+4. THE App SHALL NOT award Impact_Score credit for Items classified as Trash when disposed of in a Trash Bin_Type, as trash generation is not a positive environmental action.
+5. WHEN a User's account has an active Flag for abuse review, THE App SHALL notify the User that their account is under review and suspend leaderboard score increments until the Admin resolves the Flag.

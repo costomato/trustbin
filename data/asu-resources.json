@@ -1,0 +1,83 @@
+[
+  {
+    "id": "wf-001",
+    "type": "water_fountain",
+    "name": "Hayden Library Water Station",
+    "building": "Hayden Library",
+    "zone": "Academic Core",
+    "coordinates": { "lat": 33.4183, "lng": -111.9346 },
+    "notes": "Bottle-filling station on ground floor near main entrance"
+  },
+  {
+    "id": "wf-002",
+    "type": "water_fountain",
+    "name": "Memorial Union Water Station",
+    "building": "Memorial Union",
+    "zone": "Student Services",
+    "coordinates": { "lat": 33.4196, "lng": -111.9378 },
+    "notes": "Bottle-filling station on first floor near food court"
+  },
+  {
+    "id": "wf-003",
+    "type": "water_fountain",
+    "name": "Brickyard Water Station",
+    "building": "Brickyard",
+    "zone": "Innovation Hub",
+    "coordinates": { "lat": 33.4212, "lng": -111.9289 },
+    "notes": "Filtered water station on second floor near study area"
+  },
+  {
+    "id": "wf-004",
+    "type": "water_fountain",
+    "name": "Fulton Center Water Station",
+    "building": "Fulton Center",
+    "zone": "Engineering",
+    "coordinates": { "lat": 33.4228, "lng": -111.9321 },
+    "notes": "Bottle-filling station near elevator bank, first floor"
+  },
+  {
+    "id": "wf-005",
+    "type": "water_fountain",
+    "name": "Sun Devil Fitness Complex Water Station",
+    "building": "Sun Devil Fitness Complex",
+    "zone": "Recreation",
+    "coordinates": { "lat": 33.4241, "lng": -111.9302 },
+    "notes": "Multiple bottle-filling stations throughout the facility"
+  },
+  {
+    "id": "wf-006",
+    "type": "water_fountain",
+    "name": "Interdisciplinary Science & Technology Building Water Station",
+    "building": "ISTB4",
+    "zone": "Science",
+    "coordinates": { "lat": 33.4165, "lng": -111.9268 },
+    "notes": "Bottle-filling station on each floor near restrooms"
+  },
+  {
+    "id": "ew-001",
+    "type": "ewaste_dropoff",
+    "name": "ASU Sustainability E-Waste Drop-Off",
+    "building": "University Services Building",
+    "zone": "Operations",
+    "coordinates": { "lat": 33.4175, "lng": -111.9412 },
+    "notes": "Accepts phones, laptops, batteries, cables, and small electronics. Open Mon–Fri 8am–5pm."
+  },
+  {
+    "id": "ew-002",
+    "type": "ewaste_dropoff",
+    "name": "Hayden Library E-Waste Collection",
+    "building": "Hayden Library",
+    "zone": "Academic Core",
+    "coordinates": { "lat": 33.4183, "lng": -111.9346 },
+    "notes": "Drop box for batteries and small electronics near the circulation desk"
+  },
+  {
+    "id": "ew-003",
+    "type": "ewaste_dropoff",
+    "name": "Memorial Union E-Waste Kiosk",
+    "building": "Memorial Union",
+    "zone": "Student Services",
+    "coordinates": { "lat": 33.4196, "lng": -111.9378 },
+    "notes": "Accepts phones, tablets, and batteries. Located near the information desk."
+  }
+]
