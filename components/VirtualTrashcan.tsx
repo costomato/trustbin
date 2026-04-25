@@ -43,7 +43,6 @@ const BIN_CONFIG: {
     bgColor: 'bg-green-100/80',
     lidColor: 'bg-green-400'
   },
->>>>>>> jay
 ];
 
 export default function VirtualTrashcan({ items }: VirtualTrashcanProps) {
