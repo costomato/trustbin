@@ -148,7 +148,15 @@ export default function ScanFlow({ trustScore }: ScanFlowProps) {
     return (
       <div className="flex flex-col gap-4 w-full">
         {classifyError && (
-          <p className="text-red-500 text-sm text-center">{classifyError}</p>
+          <div className="rounded-xl bg-yellow-50 border border-yellow-200 px-4 py-3 text-center">
+            <p className="text-yellow-800 text-sm font-medium">⚠️ {classifyError}</p>
+            <button
+              onClick={() => setClassifyError(null)}
+              className="mt-2 text-xs text-yellow-600 hover:underline"
+            >
+              Dismiss
+            </button>
+          </div>
         )}
         {state === 'classifying' ? (
           <div className="flex items-center justify-center h-64 bg-gray-900 rounded-xl">

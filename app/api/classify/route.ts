@@ -25,8 +25,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No image provided" }, { status: 400 });
   }
 
-  // 3. Strip data URL prefix if present
-  const base64Data = body.image.replace(/^data:image\/[a-z]+;base64,/, "");
+  // 3. Detect media type and strip data URL prefix
+  let mediaType: "image/jpeg" | "image/png" | "image/gif" | "image/webp" = "image/jpeg";
+  let base64Data = body.image;
+
+  const dataUrlMatch = body.image.match(/^data:(image\/[a-z]+);base64,/);
+  if (dataUrlMatch) {
+    mediaType = dataUrlMatch[1] as typeof mediaType;
+    base64Data = body.image.slice(dataUrlMatch[0].length);
+  }
 
   if (!base64Data || base64Data.length < 100) {
     return NextResponse.json({ error: "Image data is empty or too small" }, { status: 400 });
@@ -46,7 +53,7 @@ export async function POST(req: NextRequest) {
               type: "image",
               source: {
                 type: "base64",
-                media_type: "image/jpeg",
+                media_type: mediaType,
                 data: base64Data,
               },
             },
@@ -66,8 +73,7 @@ export async function POST(req: NextRequest) {
     rawText = block.text;
   } catch (err) {
     console.error("Anthropic API error:", err);
-    const message = err instanceof Error ? err.message : "Classification failed";
-    return NextResponse.json({ error: `Classification failed: ${message}` }, { status: 500 });
+    return NextResponse.json({ error: "We couldn't classify this image right now. Please try again." }, { status: 500 });
   }
 
   // 5. Parse JSON response
@@ -89,7 +95,7 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error("Failed to parse Anthropic response:", rawText, err);
-    return NextResponse.json({ error: "Failed to parse classification response" }, { status: 500 });
+    return NextResponse.json({ error: "We couldn't understand the result. Please try again with a clearer photo." }, { status: 500 });
   }
 
   // 6. Return result
