@@ -1,16 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence, useDragControls, PanInfo } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { formatItemName } from '@/lib/format';
 import ItemIcon from '@/components/ItemIcon';
 import { groupByClassification } from '@/lib/trashcan';
 import type { DisposalItem, Classification } from '@/lib/trashcan';
-
-interface ItemPosition {
-  x: number;
-  y: number;
-}
 
 interface VirtualTrashcanProps {
   items: DisposalItem[];
@@ -52,19 +47,7 @@ const BIN_CONFIG: {
 
 export default function VirtualTrashcan({ items }: VirtualTrashcanProps) {
   const [selectedBin, setSelectedBin] = useState<Classification | null>(null);
-  const [itemPositions, setItemPositions] = useState<Record<string, ItemPosition>>({});
   const grouped = groupByClassification(items);
-
-  // Handle drag end to update item position
-  const handleDragEnd = (itemId: string, info: PanInfo) => {
-    setItemPositions(prev => ({
-      ...prev,
-      [itemId]: {
-        x: (prev[itemId]?.x || 0) + info.offset.x,
-        y: (prev[itemId]?.y || 0) + info.offset.y,
-      }
-    }));
-  };
 
   // Main view - all three bins
   if (!selectedBin) {
@@ -176,44 +159,25 @@ export default function VirtualTrashcan({ items }: VirtualTrashcanProps) {
           </div>
           
           {/* Large transparent bin body showing all items */}
-          <div className={`relative ${config.bgColor} ${config.borderColor} border-[6px] flex-1 rounded-b-2xl shadow-2xl overflow-visible backdrop-blur-sm`}>
-            {/* Items stacked naturally inside - DRAGGABLE */}
-            <div className="absolute inset-0 p-3">
+          <div className={`relative ${config.bgColor} ${config.borderColor} border-[6px] flex-1 rounded-b-2xl shadow-2xl overflow-hidden backdrop-blur-sm`}>
+            {/* Items stacked naturally inside - like the reference image */}
+            <div className="absolute inset-0 flex flex-wrap gap-1 p-3 content-end justify-center items-end">
               {binItems.slice(0, 24).map((item, idx) => {
                 // Create natural stacking pattern
                 const row = Math.floor(idx / 4);
                 const col = idx % 4;
-                const baseRotation = (col === 0 ? -12 : col === 1 ? 8 : col === 2 ? -5 : 10) + (row * 2);
-                const scale = 1 - (row * 0.05);
-                
-                // Get stored position or use default
-                const position = itemPositions[item.id] || { x: 0, y: 0 };
+                const rotation = (col === 0 ? -12 : col === 1 ? 8 : col === 2 ? -5 : 10) + (row * 2);
+                const scale = 1 - (row * 0.05); // Items at bottom slightly larger
                 
                 return (
                   <motion.div
                     key={item.id}
-                    drag
-                    dragMomentum={false}
-                    dragElastic={0.1}
-                    dragConstraints={{
-                      top: -100,
-                      left: -100,
-                      right: 100,
-                      bottom: 100,
-                    }}
-                    onDragEnd={(_, info) => handleDragEnd(item.id, info)}
                     initial={{ y: -50, opacity: 0, scale: 0.3, rotate: -30 }}
                     animate={{ 
-                      x: position.x,
-                      y: position.y,
+                      y: 0, 
                       opacity: 1, 
                       scale: scale,
-                      rotate: baseRotation
-                    }}
-                    whileDrag={{ 
-                      scale: scale * 1.2, 
-                      zIndex: 50,
-                      cursor: 'grabbing'
+                      rotate: rotation
                     }}
                     transition={{ 
                       delay: idx * 0.03, 
@@ -221,10 +185,8 @@ export default function VirtualTrashcan({ items }: VirtualTrashcanProps) {
                       stiffness: 180,
                       damping: 12
                     }}
-                    className="absolute w-12 h-12 cursor-grab active:cursor-grabbing"
+                    className="w-12 h-12"
                     style={{
-                      left: `${(col * 25) + 10}%`,
-                      bottom: `${(row * 20) + 10}%`,
                       zIndex: binItems.length - idx
                     }}
                   >
@@ -233,7 +195,7 @@ export default function VirtualTrashcan({ items }: VirtualTrashcanProps) {
                 );
               })}
               {binItems.length > 24 && (
-                <div className="absolute bottom-3 right-3 w-12 h-12 flex items-center justify-center text-xs font-bold text-white bg-black/80 rounded-full shadow-lg">
+                <div className="w-12 h-12 flex items-center justify-center text-xs font-bold text-white bg-black/80 rounded-full shadow-lg">
                   +{binItems.length - 24}
                 </div>
               )}
