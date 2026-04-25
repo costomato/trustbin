@@ -30,8 +30,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </svg>
     )},
     { href: '/leaderboard', label: 'Leaderboard', icon: (
-      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12,15A2,2 0 0,1 14,17A2,2 0 0,1 12,19A2,2 0 0,1 10,17A2,2 0 0,1 12,15M6,6H18V8H20V6C20,4.89 19.1,4 18,4H15V1H9V4H6A2,2 0 0,0 4,6V8H6V6M20,9H4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V9M12,13A4,4 0 0,0 16,9H8A4,4 0 0,0 12,13Z" />
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        {/* 1st place - center tall */}
+        <rect x="8" y="4" width="8" height="16" rx="1" />
+        {/* 2nd place - left medium */}
+        <rect x="1" y="10" width="7" height="10" rx="1" />
+        {/* 3rd place - right short */}
+        <rect x="16" y="13" width="7" height="7" rx="1" />
       </svg>
     )},
     { href: '/profile', label: 'Profile', icon: (
