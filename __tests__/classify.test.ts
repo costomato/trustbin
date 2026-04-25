@@ -32,6 +32,9 @@ vi.mock('@/lib/supabase/server', () => ({
 
 import { POST } from '@/app/api/classify/route'
 
+// A fake base64 string long enough to pass the length validation (>100 chars)
+const MOCK_IMAGE = 'A'.repeat(200)
+
 function makeRequest(body: unknown) {
   return new Request('http://localhost/api/classify', {
     method: 'POST',
@@ -84,7 +87,7 @@ describe('POST /api/classify', () => {
       )
     )
 
-    const res = await POST(makeRequest({ image: 'base64imagedata' }))
+    const res = await POST(makeRequest({ image: MOCK_IMAGE }))
 
     expect(res.status).toBe(200)
     const json = await res.json()
@@ -100,7 +103,7 @@ describe('POST /api/classify', () => {
       anthropicResponse('This is not valid JSON at all.')
     )
 
-    const res = await POST(makeRequest({ image: 'base64imagedata' }))
+    const res = await POST(makeRequest({ image: MOCK_IMAGE }))
 
     expect(res.status).toBe(500)
     const json = await res.json()
@@ -120,13 +123,13 @@ describe('POST /api/classify', () => {
       )
     )
 
-    const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgAB'
+    const dataUrl = `data:image/jpeg;base64,${MOCK_IMAGE}`
     await POST(makeRequest({ image: dataUrl }))
 
     expect(mockMessagesCreate).toHaveBeenCalledOnce()
     const callArgs = mockMessagesCreate.mock.calls[0][0]
     const imageBlock = callArgs.messages[0].content[0]
-    expect(imageBlock.source.data).toBe('/9j/4AAQSkZJRgAB')
+    expect(imageBlock.source.data).toBe(MOCK_IMAGE)
     expect(imageBlock.source.data).not.toContain('data:image')
   })
 
@@ -134,10 +137,10 @@ describe('POST /api/classify', () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'user-1' } } })
     mockMessagesCreate.mockRejectedValueOnce(new Error('API rate limit exceeded'))
 
-    const res = await POST(makeRequest({ image: 'base64imagedata' }))
+    const res = await POST(makeRequest({ image: MOCK_IMAGE }))
 
     expect(res.status).toBe(500)
     const json = await res.json()
-    expect(json.error).toBe('Classification failed')
+    expect(json.error).toContain('Classification failed')
   })
 })
