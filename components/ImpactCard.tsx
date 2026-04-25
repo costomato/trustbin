@@ -1,6 +1,6 @@
 'use client';
 
-import { getImpactEquivalency, INDUSTRIAL_CONTEXT } from '@/lib/impact';
+import { getImpactEquivalency } from '@/lib/impact';
 
 interface ImpactCardProps {
   impactScore: number;
@@ -18,11 +18,6 @@ export default function ImpactCard({ impactScore }: ImpactCardProps) {
       </div>
 
       <p className="text-sm text-green-700">{getImpactEquivalency(impactScore)}</p>
-
-      {/* Industrial context (Req 8.3) */}
-      <p className="text-xs text-green-600 border-t border-green-200 pt-3 leading-relaxed">
-        {INDUSTRIAL_CONTEXT}
-      </p>
     </div>
   );
 }
