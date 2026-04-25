@@ -14,6 +14,7 @@ interface DisposalRequestBody {
   itemDescription: string;
   materialType?: string;
   imageUrl?: string;
+  imageData?: string; // Base64 image data
 }
 
 const VALID_BIN_TYPES: BinType[] = ["Trash", "Recycling", "Compost"];
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { aiClassification, selectedBin, itemDescription, materialType, imageUrl } = body;
+  const { aiClassification, selectedBin, itemDescription, materialType, imageUrl, imageData } = body;
 
   if (
     !aiClassification ||
@@ -46,6 +47,13 @@ export async function POST(req: NextRequest) {
     !VALID_BIN_TYPES.includes(selectedBin)
   ) {
     return NextResponse.json({ error: "Missing or invalid required fields" }, { status: 400 });
+  }
+
+  // Convert base64 image to data URL if provided
+  let finalImageUrl = imageUrl;
+  if (imageData && !finalImageUrl) {
+    // Store as data URL for now (in production, you'd upload to Supabase Storage)
+    finalImageUrl = imageData.startsWith('data:') ? imageData : `data:image/jpeg;base64,${imageData}`;
   }
 
   const admin = createAdminClient();
@@ -134,7 +142,7 @@ export async function POST(req: NextRequest) {
         ai_classification: aiClassification,
         selected_bin: selectedBin,
         is_correct: isCorrect,
-        image_url: imageUrl ?? null,
+        image_url: finalImageUrl ?? null,
         trust_delta: trustDelta,
       })
       .select("id")
@@ -184,7 +192,44 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 10. Return result
+    // 10. Generate quiz question for correct disposals
+    // This helps users learn from their correct choices
+    if (isCorrect) {
+      try {
+        const prompt = `Generate a quiz question about this waste item. Classification: ${aiClassification}, Material type: ${materialType ?? 'unknown'}, Description: ${itemDescription}. Respond with JSON only: { "question": "...", "choices": ["Trash", "Recycling", "Compost", "None of the above"], "correct_answer": "...", "explanation": "..." }`;
+
+        const anthropicModule = await import('@/lib/anthropic');
+        const response = await anthropicModule.anthropic.messages.create({
+          model: anthropicModule.ANTHROPIC_MODEL,
+          max_tokens: 512,
+          messages: [{ role: 'user', content: prompt }],
+        });
+
+        const block = response.content[0];
+        if (block.type === 'text') {
+          const jsonText = block.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+          const parsed = JSON.parse(jsonText);
+          
+          const { validateQuizQuestion } = await import('@/lib/quiz');
+          if (validateQuizQuestion(parsed)) {
+            await admin.from('quiz_questions').insert({
+              user_id: userId,
+              disposal_event_id: disposalEvent.id,
+              question_text: parsed.question,
+              image_url: imageUrl ?? null,
+              choices: parsed.choices,
+              correct_answer: parsed.correct_answer,
+              explanation: parsed.explanation,
+            });
+          }
+        }
+      } catch (err) {
+        // Quiz generation is non-critical, log but don't fail the disposal
+        console.error('Quiz generation failed (non-blocking):', err);
+      }
+    }
+
+    // 11. Return result
     return NextResponse.json({
       isCorrect,
       trustDelta,
