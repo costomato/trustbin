@@ -95,15 +95,18 @@ app/
 | `ClassificationResult` | Display AI result, explanation, confidence, flag button |
 | `BinSelector` | Three-button UI for selecting Trash / Recycling / Compost |
 | `DisposalFeedback` | Animated correct/incorrect feedback after bin selection |
-| `VirtualTrashcan` | Three animated bins with item icons and fill levels |
+| `VirtualTrashcan` | Suika-style physics bin with Matter.js, drag-to-rearrange items |
 | `ItemIcon` | Individual item icon with tap-to-detail behavior |
-| `DropAnimation` | Framer Motion animation for item dropping into bin |
+| `DropAnimation` | Physics-based drop animation for items entering the bin |
 | `TrustScoreBar` | Progress bar toward Trust_Threshold (100pts) |
-| `StreakDisplay` | Current streak count + weekly progress (X/3 this week) |
+| `StreakDisplay` | Current daily streak count + today's status |
 | `ImpactCard` | Impact_Score with concrete equivalency text |
 | `QuizCard` | Image + 4-choice question UI |
 | `Leaderboard` | Ranked list with scores and period label |
 | `NearbyResources` | Water fountain / e-waste location display |
+| `ShareProfileButton` | Share profile via Web Share API or clipboard |
+| `LoadingTip` | Contextual sustainability tip during loading states |
+| `QuizPageClient` | Quiz session manager with daily limit tracking |
 
 ### Server Actions / API Routes
 
@@ -345,11 +348,11 @@ function computeImpactDelta(classification: string, materialType: string): numbe
 
 **Validates: Requirements 6.4, 6.5, 10.2**
 
-### Property 6: Streak increments only when weekly minimum is met
+### Property 6: Streak increments only when daily minimum is met
 
-*For any* user, at the end of a calendar week, the streak count SHALL increment by exactly 1 if and only if the user logged at least 3 correct disposal events during that week. If the minimum was not met, the streak SHALL reset to 0.
+*For any* user, at the end of a day, the streak count SHALL increment by exactly 1 if the user logged at least 1 correct disposal event that day. If the minimum was not met and the day is not an ASU holiday, the streak SHALL reset to 0. On ASU holidays, the streak SHALL be preserved unchanged.
 
-**Validates: Requirements 5.2, 5.3**
+**Validates: Requirements 5.2, 5.3, 5.4**
 
 ### Property 7: Quiz question round-trip integrity
 
@@ -434,7 +437,7 @@ Each property test runs a minimum of 100 iterations.
 - **Property 2**: Generate user profiles (varying streak weeks) and correct disposal events; assert trust delta equals 10 + (streak >= 2 ? 2 : 0).
 - **Property 3**: Generate users with >20 identical classifications in 24hrs; assert trust increment is blocked.
 - **Property 4**: Generate trust scores around the 100-point threshold; assert tap-to-log availability matches `score >= 100`.
-- **Property 5 & 6**: Generate weekly disposal counts; assert leaderboard qualification and streak behavior match the 3-event minimum rule.
+- **Property 5 & 6**: Generate daily disposal counts; assert leaderboard qualification matches the 3-event weekly minimum rule, and daily streak behavior matches the 1-event daily minimum with holiday preservation.
 - **Property 7**: Generate disposal events and call quiz question validator; assert structural completeness of generated questions.
 - **Property 8**: Generate disposal events with Trash classification; assert impact delta is always 0.
 - **Property 10**: Generate flagged disposal events; assert no trust score decrement is applied.
@@ -450,6 +453,64 @@ Each property test runs a minimum of 100 iterations.
 
 ### Snapshot / Visual Tests
 
-- Virtual trashcan renders three bins with correct fill levels
-- Item icons appear in correct bin after disposal event
+- Virtual trashcan renders physics bin with items inside
+- Item icons appear in bin after disposal event with correct color coding
 - Impact card displays correct equivalency text for known material types
+
+---
+
+## Virtual Trashcan: Suika-Style Physics Design
+
+### Overview
+
+The Virtual Trashcan is reimagined as a Suika game-inspired physics bin. Items are circular bodies inside a transparent container, subject to gravity and collision. Users can drag items to rearrange them. Filter buttons let users view all items or filter by classification.
+
+### Technology
+
+- **Matter.js** — 2D physics engine for gravity, collisions, constraints, and mouse/touch interaction
+- **HTML5 Canvas** — rendering layer for smooth 60fps physics visualization
+- **Supabase Realtime** — live updates when new disposal events are recorded
+
+### Physics Configuration
+
+```typescript
+const PHYSICS_CONFIG = {
+  gravity: { x: 0, y: 1.0 },
+  itemRestitution: 0.3,    // bounciness
+  itemFriction: 0.1,
+  itemDensity: 0.001,
+  wallThickness: 20,
+  binWidth: 350,            // pixels
+  binHeight: 500,           // pixels
+};
+```
+
+### Item Representation
+
+Each disposal event becomes a circular physics body:
+- **Radius**: 15–30px based on material type (larger items = bigger circles)
+- **Color**: Gray (Landfill), Blue (Recycling), Green (Compost)
+- **Label**: Item emoji or first letter of description
+- **On tap**: Opens detail modal with classification, date, material type, educational tip
+
+### Interaction Model
+
+1. **Gravity**: Items fall and settle at the bottom of the bin
+2. **Collision**: Items push each other when they collide
+3. **Drag**: Mouse/touch drag moves an item, displacing others physically
+4. **Drop animation**: New items appear at the top and fall in with bounce
+5. **Filter**: Switching filter removes/adds physics bodies with fade animation
+
+### Filter Buttons
+
+```
+[ All ] [ 🗑️ Landfill ] [ ♻️ Recycling ] [ 🌱 Compost ]
+```
+
+Default: "All" shows every item. Selecting a filter removes non-matching items from the physics world and fades them out.
+
+### Performance Constraints
+
+- Maximum 50 physics bodies rendered at once (older items become static or are paginated)
+- Canvas resolution capped at device pixel ratio × 1 for mobile performance
+- Physics simulation paused when the trashcan page is not visible (Page Visibility API)

@@ -77,9 +77,12 @@ export default function ItemIcon({ item }: ItemIconProps) {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full h-full rounded-lg overflow-hidden hover:scale-110 transition-transform shadow-sm bg-white"
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setOpen(true); } }}
+        className="w-full h-full rounded-lg overflow-hidden hover:scale-110 transition-transform shadow-sm bg-white cursor-pointer"
         title={displayName}
       >
         {displayImage ? (
@@ -100,7 +103,7 @@ export default function ItemIcon({ item }: ItemIconProps) {
             {emoji}
           </div>
         )}
-      </button>
+      </div>
 
       {open && (
         <div
